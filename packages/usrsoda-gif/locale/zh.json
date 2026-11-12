@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "USRSODA 状态 GIF",
-    "description": "在输入框下方显示随代理状态变化的 @usrsoda GIF：空闲、工作中或已完成。"
+    "description": "在输入框下方显示 @usrsoda 四个 GIF 中的一个，随代理状态切换：空闲、工作中、等待你回复或已完成。"
   }
 }

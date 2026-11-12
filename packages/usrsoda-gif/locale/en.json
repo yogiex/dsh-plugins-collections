@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "USRSODA State GIF",
-    "description": "Shows a @usrsoda GIF below the composer that changes with the agent state: idle, working, or done."
+    "description": "Shows one of @usrsoda's four GIFs below the composer, chosen by the agent state: idle, working, waiting for you, or done."
   }
 }

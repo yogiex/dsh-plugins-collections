@@ -14,6 +14,8 @@ window.__ModuleLoader__.load({
         idleHint: 'Waiting for your next message',
         working: 'Working',
         workingHint: 'Running your request',
+        pending: 'Waiting for you',
+        pendingHint: 'A question or approval is open',
         complete: 'Done',
         completeHint: 'Last turn finished',
         media: 'Looping GIF from an X post by @usrsoda',
@@ -25,6 +27,8 @@ window.__ModuleLoader__.load({
         idleHint: 'Menunggu pesan berikutnya',
         working: 'Bekerja',
         workingHint: 'Sedang mengerjakan permintaan',
+        pending: 'Menunggu jawabanmu',
+        pendingHint: 'Ada pertanyaan atau persetujuan terbuka',
         complete: 'Selesai',
         completeHint: 'Turn terakhir sudah selesai',
         media: 'GIF berulang dari unggahan X @usrsoda',
@@ -36,6 +40,8 @@ window.__ModuleLoader__.load({
         idleHint: '等待你的下一条消息',
         working: '工作中',
         workingHint: '正在处理你的请求',
+        pending: '等待你回复',
+        pendingHint: '有一个问题或审批待处理',
         complete: '完成',
         completeHint: '上一轮已结束',
         media: '来自 @usrsoda 的 X 帖子中的循环 GIF',
@@ -58,6 +64,8 @@ window.__ModuleLoader__.load({
       '.dsw-usrsoda-state-dot{flex:none;width:7px;height:7px;border-radius:99px;',
       'background:var(--dsw-alias-state-idle-primary)}',
       '.dsw-usrsoda-state[data-state=working] .dsw-usrsoda-state-dot{background:var(--dsw-alias-brand-primary);',
+      'animation:dsw-usrsoda-pulse 1.4s ease-in-out infinite}',
+      '.dsw-usrsoda-state[data-state=pending] .dsw-usrsoda-state-dot{background:var(--dsw-alias-state-warn-primary);',
       'animation:dsw-usrsoda-pulse 1.4s ease-in-out infinite}',
       '.dsw-usrsoda-state[data-state=complete] .dsw-usrsoda-state-dot{background:var(--dsw-alias-state-success-primary)}',
       '.dsw-usrsoda-state-label{font-size:13px;font-weight:600;line-height:1.25;',
@@ -93,10 +101,29 @@ window.__ModuleLoader__.load({
 
         const t = ctx.locale.bind(NS);
 
-        function UsrsodaStateGif({ useSession, t }) {
+        /** How long the "done" GIF stays up after a turn settles, in ms. */
+        const DONE_MS = 7000;
+
+        function UsrsodaStateGif({ useSession, useSessionStatus, sessionId, t }) {
           const running = useSession((snapshot) => snapshot.running);
-          const blank = useSession((snapshot) => snapshot.blank);
-          const state = running ? 'working' : blank ? 'idle' : 'complete';
+          const pending = useSessionStatus((status) => {
+            const entry = status.get(sessionId);
+            return entry === undefined ? undefined : entry.pendingInteraction;
+          });
+          const [celebrating, setCelebrating] = React.useState(false);
+          const wasRunning = React.useRef(running);
+          React.useEffect(() => {
+            const previous = wasRunning.current;
+            wasRunning.current = running;
+            if (previous && !running) {
+              setCelebrating(true);
+              const timer = window.setTimeout(() => setCelebrating(false), DONE_MS);
+              return () => window.clearTimeout(timer);
+            }
+            if (running) setCelebrating(false);
+            return undefined;
+          }, [running]);
+          const state = pending ? 'pending' : running ? 'working' : celebrating ? 'complete' : 'idle';
           const item = STATES[state];
           const reduced = useReducedMotion();
           const media = reduced

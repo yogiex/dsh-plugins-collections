@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "GIF Status USRSODA",
-    "description": "Menampilkan GIF @usrsoda di bawah composer yang berganti sesuai keadaan agen: idle, bekerja, atau selesai."
+    "description": "Menampilkan salah satu dari empat GIF @usrsoda di bawah composer sesuai keadaan agen: idle, bekerja, menunggu jawabanmu, atau selesai."
   }
 }

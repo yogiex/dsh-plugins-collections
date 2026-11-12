@@ -6,16 +6,20 @@ const root = dirname(dirname(fileURLToPath(import.meta.url)));
 
 /**
  * One entry per GIF, with the agent state it represents.
- * `state` is `idle`, `working`, or `complete`; entries without a state are kept
- * here as spare artwork and are not embedded in the built client module.
+ * `state` is `idle`, `working`, `pending`, or `complete`; entries without a
+ * state are spare artwork and are not embedded in the built client module.
+ *
+ * The four `cute-*` GIFs all come from
+ * https://x.com/usrsoda/status/2119997289972559887 and fill every state;
+ * the first tweet's GIF is kept as the spare.
  */
 export const ITEMS = [
   {
-    id: 'copy-gif',
+    id: 'cute-1-fish',
     state: 'idle',
-    post: 'https://x.com/usrsoda/status/2120295290528039382',
-    video: 'media/usrsoda-gif.mp4',
-    poster: 'media/poster-256.jpg',
+    post: 'https://x.com/usrsoda/status/2119997289972559887',
+    video: 'media/HWu-N4QasAAY0Tq.mp4',
+    poster: 'media/HWu-N4QasAAY0Tq-256.jpg',
   },
   {
     id: 'cute-3-typing',
@@ -25,6 +29,13 @@ export const ITEMS = [
     poster: 'media/HWu-QuYasAAb-Rv-256.jpg',
   },
   {
+    id: 'cute-2-wand',
+    state: 'pending',
+    post: 'https://x.com/usrsoda/status/2119997289972559887',
+    video: 'media/HWu-PYCbUAEHz5P.mp4',
+    poster: 'media/HWu-PYCbUAEHz5P-256.jpg',
+  },
+  {
     id: 'cute-4-cheer',
     state: 'complete',
     post: 'https://x.com/usrsoda/status/2119997289972559887',
@@ -32,18 +43,11 @@ export const ITEMS = [
     poster: 'media/HWu-SHwbUAA7EuH-256.jpg',
   },
   {
-    id: 'cute-1-fish',
+    id: 'copy-gif',
     state: null,
-    post: 'https://x.com/usrsoda/status/2119997289972559887',
-    video: 'media/HWu-N4QasAAY0Tq.mp4',
-    poster: 'media/HWu-N4QasAAY0Tq-256.jpg',
-  },
-  {
-    id: 'cute-2-wand',
-    state: null,
-    post: 'https://x.com/usrsoda/status/2119997289972559887',
-    video: 'media/HWu-PYCbUAEHz5P.mp4',
-    poster: 'media/HWu-PYCbUAEHz5P-256.jpg',
+    post: 'https://x.com/usrsoda/status/2120295290528039382',
+    video: 'media/usrsoda-gif.mp4',
+    poster: 'media/poster-256.jpg',
   },
 ];
 
@@ -60,7 +64,7 @@ for (const item of ITEMS) {
     poster: toDataUri(item.poster, 'image/jpeg'),
   };
 }
-for (const required of ['idle', 'working', 'complete']) {
+for (const required of ['idle', 'working', 'pending', 'complete']) {
   if (!states[required]) throw new Error(`missing GIF for state "${required}"`);
 }
 

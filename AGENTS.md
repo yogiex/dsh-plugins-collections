@@ -95,6 +95,11 @@ cd packages/dsh-remotion && npm install && node scripts/smoke-client.mjs
 For `usrsoda-gif`, `client.js` is generated — edit `src/client.template.js`, rebuild, and commit both the
 template and the regenerated client.
 
+Which clip plays for which state is **configuration**, but build-time configuration: `ITEMS[].state` in
+`scripts/build.mjs`. Changing it requires a rebuild, and a clip with `state: null` is never embedded.
+Editing `media/` without rebuilding changes nothing at runtime — the client reads base64 from `client.js`,
+not from `media/`.
+
 ## Verifying a profile change
 
 `dsh --profile <name> --dump-config` composes patch layers but does **not** import modules, so it cannot

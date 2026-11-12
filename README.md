@@ -62,18 +62,48 @@ is doing without reading a status line.
 
 | State | Preview | When it appears |
 | :---: | :---: | --- |
-| `idle` | <img src="docs/assets/state-idle.gif" width="150" alt="Idle: the mascot waiting"> | The session is waiting for your next prompt |
-| `working` | <img src="docs/assets/state-working.gif" width="150" alt="Working: the mascot typing"> | A turn is running — tool calls, streaming, or a long task |
-| `complete` | <img src="docs/assets/state-complete.gif" width="150" alt="Complete: the mascot cheering"> | The turn finished and control is back with you |
+| `idle` | <img src="docs/assets/state-idle.gif" width="150" alt="Idle: a fish, waiting"> | The session is waiting for your next prompt |
+| `working` | <img src="docs/assets/state-working.gif" width="150" alt="Working: typing"> | A turn is running — tool calls, streaming, or a long task |
+| `pending` | <img src="docs/assets/state-pending.gif" width="150" alt="Pending: holding a wand, waiting for you"> | A question or an approval is open and the agent is blocked on you |
+| `complete` | <img src="docs/assets/state-complete.gif" width="150" alt="Complete: cheering"> | The turn finished and control is back with you |
 
-The mapping lives in `packages/usrsoda-gif/scripts/build.mjs` (`ITEMS[].state`). Two further clips — a fish
-and a wand — ship as spare artwork and are intentionally not mounted. The GIFs in `docs/assets/` are
-downscaled previews of the same clips the plugin embeds; regenerate them with:
+### Configuring which clip plays
+
+The mapping is **build-time configuration**, not a runtime setting. It lives in
+[`packages/usrsoda-gif/scripts/build.mjs`](packages/usrsoda-gif/scripts/build.mjs) as `ITEMS[].state`:
+
+| Clip | File | `state` | Role |
+| --- | --- | --- | --- |
+| `cute-1-fish` | `HWu-N4QasAAY0Tq.mp4` | `idle` | waiting for a prompt |
+| `cute-3-typing` | `HWu-QuYasAAb-Rv.mp4` | `working` | turn in progress |
+| `cute-2-wand` | `HWu-PYCbUAEHz5P.mp4` | `pending` | blocked on your answer |
+| `cute-4-cheer` | `HWu-SHwbUAA7EuH.mp4` | `complete` | turn finished |
+| `copy-gif` | `usrsoda-gif.mp4` | `null` | spare artwork — never embedded |
+
+To change a mapping: edit `state`, run `node scripts/build.mjs`, then commit **both** `scripts/build.mjs`
+and the regenerated `client.js`. A clip with `state: null` is skipped by the build, and the build fails
+loudly if any of the four states ends up without a clip.
+
+At runtime the client only chooses among the embedded clips:
+
+```js
+const state = pending ? 'pending' : running ? 'working' : celebrating ? 'complete' : 'idle';
+```
+
+That is why replacing a file in `media/` without rebuilding changes nothing on screen — the browser never
+reads `media/`, only the base64 inside `client.js`.
+
+The GIFs in `docs/assets/` are downscaled previews of the same clips; regenerate them with:
 
 ```bash
-ffmpeg -i packages/usrsoda-gif/media/usrsoda-gif.mp4 \
-  -vf "fps=8,scale=180:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=48:stats_mode=diff[p];[b][p]paletteuse=dither=none" \
-  -loop 0 docs/assets/state-idle.gif
+for pair in "HWu-N4QasAAY0Tq:state-idle" "HWu-QuYasAAb-Rv:state-working" \
+            "HWu-PYCbUAEHz5P:state-pending" "HWu-SHwbUAA7EuH:state-complete"; do
+  src="packages/usrsoda-gif/media/${pair%%:*}.mp4"
+  out="docs/assets/${pair##*:}.gif"
+  ffmpeg -v error -y -i "$src" \
+    -vf "fps=8,scale=180:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=48:stats_mode=diff[p];[b][p]paletteuse=dither=none" \
+    -loop 0 "$out"
+done
 ```
 
 > The artwork is by [@usrsoda](https://x.com/usrsoda), included for personal use. See
@@ -86,7 +116,7 @@ Six plugins, five of them stored here as full source trees.
 | Plugin | Version | Kind | Requires | Status |
 | --- | --- | --- | --- | --- |
 | [`dsh-bg-gradient`](packages/dsh-bg-gradient) | 0.1.0 | UI theme | — | active |
-| [`usrsoda-gif`](packages/usrsoda-gif) | 1.2.0 | UI decoration | — | active |
+| [`usrsoda-gif`](packages/usrsoda-gif) | 1.4.0 | UI decoration | — | active |
 | [`opencode-go-usage`](packages/opencode-go-usage) | 0.1.0 | Usage tracking | — | active |
 | `dsh-peak-hours` | ^1.13.20 | Usage tracking | npm | active |
 | [`dsh-remotion`](packages/dsh-remotion) | 1.0.0 | Agent tool + panel | npm deps, Chrome | optional |
@@ -112,11 +142,12 @@ semantic colours).
 
 #### `usrsoda-gif`
 
-Shows a small `@usrsoda` GIF beneath the composer that changes with agent state: `idle`, `working`,
-`complete`. Ships `en`, `id`, and `zh` locales and an icon.
+Shows one of four `@usrsoda` clips beneath the composer, chosen by agent state: `idle`, `working`,
+`pending`, or `complete`. Ships `en`, `id`, and `zh` locales and an icon.
 
 - `client.js` is a **build artifact**: `node scripts/build.mjs` inlines the clips from `media/` as base64
-  using `src/client.template.js`. Edit the template, then rebuild.
+  using `src/client.template.js`. Edit the template, then rebuild. Which clip plays for which state is
+  configured in `ITEMS[].state` — see [Configuring which clip plays](#configuring-which-clip-plays).
 - The bundled clips originate from a third-party X post; see [License & attribution](#license--attribution).
 
 #### `dsh-agent-orchestration`

@@ -1,9 +1,9 @@
 {
   "name": "@local/usrsoda-gif",
-  "version": "1.2.0",
+  "version": "1.4.0",
   "private": true,
   "type": "module",
-  "description": "Shows a @usrsoda GIF that changes with the agent state: idle, working, complete.",
+  "description": "Shows one of @usrsoda's four GIFs below the composer for the agent state: idle, working, waiting for you, or a short done celebration.",
   "exports": {
     ".": "./index.js",
     "./client": "./client.js",
