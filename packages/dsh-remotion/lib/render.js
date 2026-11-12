@@ -12,6 +12,7 @@
  */
 import { existsSync } from 'node:fs';
 import { mkdir } from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -35,11 +36,16 @@ const CODE_BY_FORMAT = { mp4: 'h264', webm: 'vp8', gif: 'gif' };
 /**
  * Remotion bundles and ffmpeg pre-encodes in the OS temp directory. On Windows
  * that directory is sometimes locked down for child processes, and ffmpeg then
- * fails with "Permission denied" halfway through a render. Pinning the temp
- * directory inside the package keeps every intermediate file in a path the host
- * is known to own.
+ * fails with "Permission denied" halfway through a render.
+ *
+ * The directory must not be the package-local `.cache/tmp`: Chromium aborts at
+ * launch (SIGTRAP) when TMPDIR points there on Linux, so renders die before the
+ * first frame. A subdirectory of the OS temp dir is used instead, and
+ * DSH_REMOTION_TMP overrides it when a host needs a different location.
  */
-const RENDER_TMP = path.join(PACKAGE_DIR, '.cache', 'tmp');
+const RENDER_TMP = process.env.DSH_REMOTION_TMP
+  ? path.resolve(process.env.DSH_REMOTION_TMP)
+  : path.join(os.tmpdir(), 'dsh-remotion');
 
 /** Run `operation` with TEMP/TMP pointed at the package-local cache. */
 async function withRenderTemp(operation) {
