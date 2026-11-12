@@ -10,11 +10,16 @@
   <img alt="License" src="https://img.shields.io/badge/license-see%20per%20package-yellow">
 </p>
 
+<p align="center">
+  <img src="docs/assets/state-idle.gif" width="180" alt="The DSH mascot waiting for a prompt">
+</p>
+
 ---
 
 ## Table of contents
 
 - [Why this repository exists](#why-this-repository-exists)
+- [Agent states](#agent-states)
 - [Plugin catalog](#plugin-catalog)
   - [UI & shell](#ui--shell)
   - [Agent tooling](#agent-tooling)
@@ -48,6 +53,31 @@ path. That has three consequences worth designing around:
 
 This repository keeps the *sources* of the local plugins under version control, records the profile
 configuration that activates them, and pins — rather than copies — what comes from npm.
+
+## Agent states
+
+The mascot above is not decoration — it is a live plugin. [`usrsoda-gif`](packages/usrsoda-gif) mounts a
+clip beneath the composer and **swaps it when the agent changes state**, so the UI shows what the session
+is doing without reading a status line.
+
+| State | Preview | When it appears |
+| :---: | :---: | --- |
+| `idle` | <img src="docs/assets/state-idle.gif" width="150" alt="Idle: the mascot waiting"> | The session is waiting for your next prompt |
+| `working` | <img src="docs/assets/state-working.gif" width="150" alt="Working: the mascot typing"> | A turn is running — tool calls, streaming, or a long task |
+| `complete` | <img src="docs/assets/state-complete.gif" width="150" alt="Complete: the mascot cheering"> | The turn finished and control is back with you |
+
+The mapping lives in `packages/usrsoda-gif/scripts/build.mjs` (`ITEMS[].state`). Two further clips — a fish
+and a wand — ship as spare artwork and are intentionally not mounted. The GIFs in `docs/assets/` are
+downscaled previews of the same clips the plugin embeds; regenerate them with:
+
+```bash
+ffmpeg -i packages/usrsoda-gif/media/usrsoda-gif.mp4 \
+  -vf "fps=8,scale=180:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=48:stats_mode=diff[p];[b][p]paletteuse=dither=none" \
+  -loop 0 docs/assets/state-idle.gif
+```
+
+> The artwork is by [@usrsoda](https://x.com/usrsoda), included for personal use. See
+> [License & attribution](#license--attribution).
 
 ## Plugin catalog
 
@@ -168,6 +198,7 @@ all-peak and all-off-peak baselines.
 │  ├─ dsh-situ-ticket/           # dsh-situ-ticket
 │  ├─ opencode-go-usage/         # @local/opencode-go-usage
 │  └─ usrsoda-gif/               # @local/usrsoda-gif
+├─ docs/assets/                  # README preview GIFs (generated from usrsoda clips)
 ├─ profile/
 │  ├─ package.json               # profile dependencies + bundle list (relative link:)
 │  └─ cordis.patch.yml           # patch layer: inserts dsh-bg-gradient

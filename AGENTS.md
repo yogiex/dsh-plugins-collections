@@ -25,6 +25,7 @@ steps in `README.md` reproduce a working DSH installation. Optimize for that.
 | `packages/usrsoda-gif/src/`, `scripts/` | Source for the generated client | Yes, then rebuild |
 | `packages/*/test/`, `scripts/` | Smoke tests and dev scripts | Yes |
 | `packages/dsh-remotion/remotion/` | Remotion compositions (TSX) | Yes |
+| `docs/assets/` | Downscaled GIF previews used by `README.md` | Regenerate with the `ffmpeg` command in the README, never hand-edit |
 | `profile/` | Reference profile config | Yes, keep paths relative |
 | `README.md` | User-facing documentation | Yes, keep the catalog table current |
 
@@ -113,8 +114,8 @@ nothing works until resolution is checked.
 
 ```bash
 git status --short
-git grep -nE "sk-[A-Za-z0-9]{10,}|ghp_|xox[bp]-" -- .            # secrets
-git grep -n "/home/\|C:\\\\Users\\\\[A-Za-z]" -- .               # absolute paths
+git grep -nE "sk-[A-Za-z0-9]{10,}|ghp_|xox[bp]-" -- . ':!AGENTS.md'   # secrets
+git grep -n "/home/\|C:\\\\Users\\\\[A-Za-z]" -- . ':!AGENTS.md'      # absolute paths
 git diff --cached --stat                                         # no node_modules, no binaries
 ```
 
