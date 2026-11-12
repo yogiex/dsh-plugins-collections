@@ -18,9 +18,6 @@ import path from 'node:path';
 import {
   MEDIA_DIR,
   PACKAGE_DIR,
-  PROMPT_SAMPLE_FILE,
-  RENDERS_DIR,
-  SAMPLE_FILE,
   detectBrowser,
   enqueue,
   listCompositions,
@@ -34,6 +31,15 @@ const API_PREFIX = '/dsh-remotion';
 const TOOL_TIMEOUT_MS = 600_000;
 const MAX_BODY_BYTES = 256 * 1024;
 const MAX_JOBS = 20;
+/**
+ * Folder the panel writes to and lists. It mirrors the agent tools: the
+ * `remotion` folder inside the session workspace, not a folder inside this
+ * package. Updated whenever a tool call reveals the active workspace.
+ */
+let uiWorkspaceDir;
+function uiRendersDir() {
+  return uiWorkspaceDir ?? path.join(process.cwd(), 'remotion');
+}
 const IMAGE_FORMATS = new Set(['png']);
 const VIDEO_FORMATS = new Set(['mp4', 'webm', 'gif']);
 const MIME = {
@@ -119,7 +125,7 @@ function startJob({ compositionId, format, props, prompt }) {
   const id = randomUUID();
   const extension = format === 'png' ? 'png' : format;
   const filename = `${compositionId}-${new Date().toISOString().replace(/[:.]/g, '-')}.${extension}`;
-  const outputLocation = path.join(RENDERS_DIR, filename);
+  const outputLocation = path.join(uiRendersDir(), filename);
   const job = {
     id,
     status: 'running',
@@ -177,37 +183,22 @@ function startJob({ compositionId, format, props, prompt }) {
  * ------------------------------------------------------------------ */
 
 async function listRenders() {
+  const dir = uiRendersDir();
+  if (!existsSync(dir)) return [];
+  const names = await readdir(dir).catch(() => []);
   const rows = [];
-  const samples = [
-    { file: PROMPT_SAMPLE_FILE, name: 'prompt-sample.mp4' },
-    { file: SAMPLE_FILE, name: 'hello-world.mp4' },
-  ];
-  for (const sample of samples) {
-    if (!existsSync(sample.file)) continue;
-    const info = await stat(sample.file).catch(() => undefined);
+  for (const name of names) {
+    const extension = path.extname(name).toLowerCase();
+    if (MIME[extension] === undefined) continue;
+    const info = await stat(path.join(dir, name)).catch(() => undefined);
+    if (info === undefined || !info.isFile()) continue;
     rows.push({
-      name: sample.name,
-      url: `${API_PREFIX}/media/${sample.name}`,
-      size: info?.size ?? 0,
-      modifiedAt: info?.mtime?.toISOString() ?? undefined,
-      sample: true,
+      name,
+      url: `${API_PREFIX}/media/renders/${encodeURIComponent(name)}`,
+      size: info.size,
+      modifiedAt: info.mtime.toISOString(),
+      sample: false,
     });
-  }
-  if (existsSync(RENDERS_DIR)) {
-    const names = await readdir(RENDERS_DIR).catch(() => []);
-    for (const name of names) {
-      const extension = path.extname(name).toLowerCase();
-      if (MIME[extension] === undefined) continue;
-      const info = await stat(path.join(RENDERS_DIR, name)).catch(() => undefined);
-      if (info === undefined || !info.isFile()) continue;
-      rows.push({
-        name,
-        url: `${API_PREFIX}/media/renders/${encodeURIComponent(name)}`,
-        size: info.size,
-        modifiedAt: info.mtime.toISOString(),
-        sample: false,
-      });
-    }
   }
   rows.sort((left, right) => String(right.modifiedAt ?? '').localeCompare(String(left.modifiedAt ?? '')));
   return rows.slice(0, 30);
@@ -248,9 +239,9 @@ async function readJsonBody(req) {
 }
 
 /** Stream one file below the media directory, honoring simple Range requests. */
-function serveMedia(req, res, filePath) {
-  const resolved = path.resolve(MEDIA_DIR, filePath);
-  if (resolved !== MEDIA_DIR && !resolved.startsWith(`${MEDIA_DIR}${path.sep}`)) {
+function serveMedia(req, res, baseDir, filePath) {
+  const resolved = path.resolve(baseDir, filePath);
+  if (resolved !== baseDir && !resolved.startsWith(`${baseDir}${path.sep}`)) {
     return sendText(res, 403, 'forbidden');
   }
   if (!existsSync(resolved)) return sendText(res, 404, 'not found');
@@ -391,10 +382,14 @@ async function resolveOutputDir(ctx, exec) {
     const agent = exec?.agent ?? exec?.callerAgent ?? exec?.session?.agent;
     if (service !== undefined && agent !== undefined && agent !== null) {
       const dir = await service.ensure(agent);
-      if (typeof dir === 'string' && dir.length > 0) return path.join(dir, 'remotion');
+      if (typeof dir === 'string' && dir.length > 0) {
+        uiWorkspaceDir = path.join(dir, 'remotion');
+        return uiWorkspaceDir;
+      }
     }
     if (typeof service?.defaultDirectory === 'string' && service.defaultDirectory.length > 0) {
-      return path.join(service.defaultDirectory, 'remotion');
+      uiWorkspaceDir = path.join(service.defaultDirectory, 'remotion');
+      return uiWorkspaceDir;
     }
   } catch {
     // Fall through to the package-local output folder.
@@ -413,6 +408,15 @@ export const inject = ['tools', 'webServer'];
  * @param {import('@deepseek-ai/cordis').Context} ctx
  */
 export function apply(ctx) {
+  try {
+    const service = ctx.get('workingDirectory');
+    if (uiWorkspaceDir === undefined && typeof service?.defaultDirectory === 'string') {
+      uiWorkspaceDir = path.join(service.defaultDirectory, 'remotion');
+    }
+  } catch {
+    // No working-directory service: keep process.cwd().
+  }
+
   ctx.tools.register({
     name: 'remotion_compositions',
     description:
@@ -516,7 +520,11 @@ export function apply(ctx) {
 
         if (pathname.startsWith('/media/')) {
           if (req.method !== 'GET' && req.method !== 'HEAD') return send(res, 405, { error: 'metode tidak didukung' });
-          return serveMedia(req, res, pathname.slice('/media/'.length));
+          const rest = pathname.slice('/media/'.length);
+          if (rest.startsWith('renders/')) {
+            return serveMedia(req, res, uiRendersDir(), rest.slice('renders/'.length));
+          }
+          return serveMedia(req, res, MEDIA_DIR, rest);
         }
 
         try {
@@ -527,6 +535,7 @@ export function apply(ctx) {
               compositions: compositionsCache ?? null,
               compositionsError: compositionsError ?? null,
               renders: await listRenders(),
+              workspace: uiRendersDir(),
               job: latestJobId === undefined ? null : publicJob(jobs.get(latestJobId)),
             });
           }
@@ -554,7 +563,7 @@ export function apply(ctx) {
               ...(body.props !== null && typeof body.props === 'object' ? body.props : {}),
               ...(prompt === undefined ? {} : { prompt }),
             };
-            await mkdir(RENDERS_DIR, { recursive: true });
+            await mkdir(uiRendersDir(), { recursive: true });
             const started = startJob({ compositionId, format, props, prompt });
             if (started.busy) {
               return send(res, 409, { error: 'render lain masih berjalan', job: publicJob(started.job) });

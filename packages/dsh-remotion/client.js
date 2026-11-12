@@ -28,7 +28,7 @@ window.__ModuleLoader__.load({
       'meta.composition': 'Composition',
       'section.renders': 'Renders',
       'section.composition': 'Composition',
-      'renders.empty': 'No renders yet. Hit Render video to produce the first one.',
+      'renders.empty': 'No renders in this workspace yet. Hit Render video to produce the first one.',
       'renders.sample': 'Bundled sample',
       'state.loading': 'Loading the studio…',
       'state.errorTitle': 'The Remotion host is unreachable',
@@ -44,7 +44,7 @@ window.__ModuleLoader__.load({
       'prompt.caption': 'Rendered from prompt',
       'prompt.empty': 'Write a prompt before rendering.',
       'prompt.count': '{count} characters',
-      'footer.note': 'Renders run on the DSH host with your local Chrome. The sample video ships with the plugin so the panel always has a preview.',
+      'footer.note': 'Renders run on the DSH host with your local Chrome and are written to the remotion folder inside the session workspace. This list follows that folder.',
       'composition.unknown': 'Sample composition',
       'composition.loading': 'Resolving compositions…',
     };
@@ -65,7 +65,7 @@ window.__ModuleLoader__.load({
       'meta.composition': 'Komposisi',
       'section.renders': 'Hasil render',
       'section.composition': 'Komposisi',
-      'renders.empty': 'Belum ada hasil render. Tekan Render video untuk membuat yang pertama.',
+      'renders.empty': 'Belum ada hasil render di workspace ini. Tekan Render video untuk membuat yang pertama.',
       'renders.sample': 'Contoh bawaan',
       'state.loading': 'Memuat studio…',
       'state.errorTitle': 'Host Remotion tidak dapat dihubungi',
@@ -81,7 +81,7 @@ window.__ModuleLoader__.load({
       'prompt.caption': 'Dirender dari prompt',
       'prompt.empty': 'Tulis prompt dulu sebelum render.',
       'prompt.count': '{count} karakter',
-      'footer.note': 'Render berjalan di host DSH memakai Chrome lokal. Video contoh disertakan agar panel selalu punya pratinjau.',
+      'footer.note': 'Render berjalan di host DSH memakai Chrome lokal dan ditulis ke folder remotion di dalam workspace sesi. Daftar ini mengikuti folder tersebut.',
       'composition.unknown': 'Komposisi contoh',
       'composition.loading': 'Menyiapkan komposisi…',
     };
@@ -118,7 +118,7 @@ window.__ModuleLoader__.load({
       'prompt.caption': '渲染自提示词',
       'prompt.empty': '请先填写提示词。',
       'prompt.count': '{count} 个字符',
-      'footer.note': '渲染在 DSH 主机上使用本地 Chrome 运行。示例视频随插件提供，面板始终有预览。',
+      'footer.note': '渲染在 DSH 主机上使用本地 Chrome 运行，结果写入会话 workspace 内的 remotion 文件夹。此列表跟随该文件夹。',
       'composition.unknown': '示例合成',
       'composition.loading': '正在解析合成…',
     };
@@ -470,6 +470,9 @@ window.__ModuleLoader__.load({
                 h('h3', { className: 'dsr-sectionTitle' }, t('section.renders')),
                 h('span', { className: 'dsr-sectionCount' }, String(renders.length)),
               ),
+              state?.workspace === undefined
+                ? null
+                : h('p', { className: 'dsr-path', title: state.workspace }, state.workspace),
               renders.length === 0
                 ? h('p', { className: 'dsr-emptyText' }, t('renders.empty'))
                 : h(
@@ -633,6 +636,7 @@ window.__ModuleLoader__.load({
 .dsr-rowOpen{flex:none;font-size:11.5px;line-height:16px;color:var(--dsw-alias-brand-primary);text-decoration:none}
 .dsr-rowOpen:hover{text-decoration:underline}
 .dsr-emptyText{margin:0;padding:14px;font-size:12.5px;line-height:18px;color:var(--dsw-alias-label-secondary)}
+.dsr-path{margin:0 0 8px;font-size:11px;line-height:15px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--dsw-alias-label-secondary);overflow-wrap:anywhere}
 
 .dsr-notice{padding:9px 12px;border:1px solid var(--dsw-alias-border-l1);border-radius:10px;font-size:12.5px;line-height:18px}
 .dsr-noticeError{border-color:color-mix(in srgb,var(--dsw-alias-state-error-primary) 36%,var(--dsw-alias-border-l1));background:color-mix(in srgb,var(--dsw-alias-state-error-primary) 7%,transparent)}
