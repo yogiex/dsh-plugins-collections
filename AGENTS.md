@@ -18,7 +18,7 @@ steps in `README.md` reproduce a working DSH installation. Optimize for that.
 | --- | --- | --- |
 | `packages/*/index.js` | Host half of a plugin | Yes |
 | `packages/*/client.js` | Client half — **generated** for `usrsoda-gif`, hand-written elsewhere | Careful, see below |
-| `packages/*/lib/` | Host-side helpers (`situ-ticket`, `remotion`) | Yes |
+| `packages/*/lib/` | Host-side helpers (`remotion`) | Yes |
 | `packages/*/cordis.patch.yml` | The plugin's own patch layer | Yes |
 | `packages/*/package.json` | Manifest, including the `dsh` block | Yes, keep the `dsh` block intact |
 | `packages/*/locale/*.json` | UI strings (`en`, `id`, `zh`) | Yes, keep all existing keys |
@@ -46,7 +46,10 @@ steps in `README.md` reproduce a working DSH installation. Optimize for that.
 6. **Do not redistribute third-party media.** `packages/usrsoda-gif/media/*` belongs to
    [@usrsoda](https://x.com/usrsoda) and is embedded as base64 inside `client.js`. Replacing `media/`
    without rebuilding leaves the original assets in the bundle.
-7. **Do not add a licence to a package that does not have one.** Licensing is per package and documented
+7. **`packages/dsh-situ-ticket/` is intentionally untracked.** It is a work-internal plugin kept out of
+   the public repository and covered by `.gitignore`. Never `git add` it, never remove it from
+   `.gitignore`, and do not reference it from `README.md`.
+8. **Do not add a licence to a package that does not have one.** Licensing is per package and documented
    in `README.md`; `dsh-remotion` depends on Remotion, which is not MIT.
 
 ## The plugin contract
@@ -81,9 +84,6 @@ Every plugin is an ESM package with a `dsh` block in `package.json`:
 ```bash
 # gradient: contrast + token-layer assertions (writes test/applied.json, git-ignored)
 node --test packages/dsh-bg-gradient/test/logic.test.mjs
-
-# Situ: tool registration + route shape, no network
-node packages/dsh-situ-ticket/test/smoke.mjs
 
 # usrsoda: regenerate client.js after editing src/ or media/
 node packages/usrsoda-gif/scripts/build.mjs

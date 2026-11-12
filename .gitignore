@@ -31,3 +31,6 @@ logs/
 .DS_Store
 Thumbs.db
 *.swp
+
+# kept out of the public repository on purpose (work-internal plugin)
+packages/dsh-situ-ticket/

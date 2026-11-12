@@ -6,7 +6,7 @@
   <img alt="DSH" src="https://img.shields.io/badge/DSH-0.2.1--rc.5-4B6BFB">
   <img alt="Node" src="https://img.shields.io/badge/node-%E2%89%A520-339933?logo=node.js&logoColor=white">
   <img alt="Platform" src="https://img.shields.io/badge/platform-web-8A2BE2">
-  <img alt="Plugins" src="https://img.shields.io/badge/plugins-7-informational">
+  <img alt="Plugins" src="https://img.shields.io/badge/plugins-6-informational">
   <img alt="License" src="https://img.shields.io/badge/license-see%20per%20package-yellow">
 </p>
 
@@ -81,7 +81,7 @@ ffmpeg -i packages/usrsoda-gif/media/usrsoda-gif.mp4 \
 
 ## Plugin catalog
 
-Seven plugins, six of them stored here as full source trees.
+Six plugins, five of them stored here as full source trees.
 
 | Plugin | Version | Kind | Requires | Status |
 | --- | --- | --- | --- | --- |
@@ -89,7 +89,6 @@ Seven plugins, six of them stored here as full source trees.
 | [`usrsoda-gif`](packages/usrsoda-gif) | 1.2.0 | UI decoration | — | active |
 | [`opencode-go-usage`](packages/opencode-go-usage) | 0.1.0 | Usage tracking | — | active |
 | `dsh-peak-hours` | ^1.13.20 | Usage tracking | npm | active |
-| [`dsh-situ-ticket`](packages/dsh-situ-ticket) | 0.2.5 | Agent tool + panel | Situ account | optional |
 | [`dsh-remotion`](packages/dsh-remotion) | 1.0.0 | Agent tool + panel | npm deps, Chrome | optional |
 | [`dsh-agent-orchestration`](packages/dsh-agent-orchestration) | 1.0.0 | UI view | — | optional |
 
@@ -126,33 +125,6 @@ A live board inside the conversation that renders the delegation tree of subagen
 and finish. Pure client-side; no host dependency beyond the client runtime.
 
 ### Agent tooling
-
-#### `dsh-situ-ticket`
-
-Read-only bridge to Telkom University's Service Desk (**Situ**), exposing one tool and one sidebar panel.
-
-| `situ_ticket` action | Returns |
-| --- | --- |
-| `status` | Single ticket by number: state, subject, service, requester/assignee, dates, deadline, rating, your tasks on it, optional status history |
-| `list` | Recent tickets for the account — active, closed, or both |
-| `tasks` | Every task assigned to you across tickets, open-only by default, with deadlines and overdue flags |
-
-The panel mirrors this over a same-origin API that never exposes credentials:
-
-```
-GET /situ-ticket/api/status
-GET /situ-ticket/api/tasks?limit=25&includeDone=0
-GET /situ-ticket/api/tickets?status=active|closed|any&limit=25
-GET /situ-ticket/api/ticket?number=X&history=1
-```
-
-Only read endpoints are implemented — no ticket or task is ever created, updated, or closed.
-
-Credentials are never passed through chat. Three sources are checked in order:
-
-1. `credentialsFile` in the plugin config,
-2. `SITU_CREDENTIALS_FILE`,
-3. `~/.dsh/situ-credentials.json` — `{ "username": "...", "password": "..." }`.
 
 #### `dsh-remotion`
 
@@ -195,7 +167,6 @@ all-peak and all-off-peak baselines.
 │  ├─ dsh-agent-orchestration/   # @local/dsh-agent-orchestration
 │  ├─ dsh-bg-gradient/           # @local/dsh-bg-gradient
 │  ├─ dsh-remotion/              # @local/dsh-remotion
-│  ├─ dsh-situ-ticket/           # dsh-situ-ticket
 │  ├─ opencode-go-usage/         # @local/opencode-go-usage
 │  └─ usrsoda-gif/               # @local/usrsoda-gif
 ├─ docs/assets/                  # README preview GIFs (generated from usrsoda clips)
@@ -342,11 +313,9 @@ Nothing here sends data to a third party. What is written locally:
 | --- | --- | --- |
 | `~/.dsh/opencode-go-usage.json` | `opencode-go-usage` | Per-request token/cost events |
 | `~/.dsh/dsh-bg-gradient.json` | `dsh-bg-gradient` | Selected preset and strength |
-| `~/.dsh/situ-credentials.json` | you | Situ SSO username/password (never read by the agent) |
 | `<cwd>/remotion/` | `dsh-remotion` | Rendered media inside the session workspace |
 
-What is read: `~/.dsh/sessions` (usage plugin), `~/.local/share/opencode/opencode.db` (usage plugin), and
-the Situ HTTP API (ticket plugin, read-only endpoints).
+What is read: `~/.dsh/sessions` and `~/.local/share/opencode/opencode.db`, both by the usage plugin only.
 
 None of the files above are tracked by git; they are covered by `.gitignore`.
 
@@ -368,9 +337,6 @@ None of the files above are tracked by git; they are covered by `.gitignore`.
 ```bash
 # contrast + token-layer test for the gradient (writes test/applied.json)
 cd packages/dsh-bg-gradient && node --test test/logic.test.mjs
-
-# Situ tool/route smoke test (no network)
-cd packages/dsh-situ-ticket && node test/smoke.mjs
 
 # rebuild the usrsoda client from src/ + media/
 cd packages/usrsoda-gif && node scripts/build.mjs
@@ -407,7 +373,6 @@ Licensing is **per package**, not per repository:
 
 | Package | License |
 | --- | --- |
-| `dsh-situ-ticket` | MIT |
 | `dsh-remotion` | MIT for this plugin's code; **Remotion itself is not MIT** — free for individuals and companies of ≤3 people, commercial licence required above that ([pricing](https://www.remotion.dev/pricing)) |
 | `dsh-peak-hours` | MIT, © [run666888](https://github.com/run666888/dsh-peak-hours) |
 | `dsh-bg-gradient`, `opencode-go-usage`, `dsh-agent-orchestration` | unpublished local code |
