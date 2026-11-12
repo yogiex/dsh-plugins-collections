@@ -1,0 +1,3 @@
+- insert:
+    - id: remotion
+      name: '@local/dsh-remotion'

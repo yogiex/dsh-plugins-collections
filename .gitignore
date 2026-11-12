@@ -1,0 +1,33 @@
+# dependencies & build caches
+node_modules/
+**/node_modules/
+**/.cache/
+**/.pnpm-store/
+
+# artefak render / demo yang bisa dibuat ulang
+**/media/renders/
+**/test/applied.json
+**/preview.html
+
+# rahasia & state pribadi
+.env
+.env.*
+**/.credentials.yaml
+situ-credentials.json
+opencode-go-usage.json
+dsh-bg-gradient.json
+*.jsonl
+*.jsonl.zstd
+*.pem
+*.key
+
+# backup & log
+*.bak
+*.bak.*
+*.log
+logs/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+*.swp

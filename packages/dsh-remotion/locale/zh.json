@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Remotion 视频工作室",
+    "description": "在 Web UI 中预览并渲染 Remotion 合成，并提供 remotion_render 工具让智能体输出视频。"
+  }
+}

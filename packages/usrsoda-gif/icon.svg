@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Looping GIF">
+  <defs>
+    <linearGradient id="g" x1="8" y1="6" x2="56" y2="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2f7cf6"/>
+      <stop offset="1" stop-color="#7b3ff2"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="56" height="56" rx="15" fill="url(#g)"/>
+  <path d="M25 20.5v23a1.5 1.5 0 0 0 2.3 1.28l18.1-11.5a1.5 1.5 0 0 0 0-2.56L27.3 19.22A1.5 1.5 0 0 0 25 20.5Z" fill="#fff"/>
+  <path d="M14 32a9 9 0 0 1 9-9" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="3" stroke-linecap="round"/>
+  <path d="M50 32a9 9 0 0 1-9 9" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="3" stroke-linecap="round"/>
+</svg>

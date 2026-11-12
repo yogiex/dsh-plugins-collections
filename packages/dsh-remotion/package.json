@@ -1,0 +1,48 @@
+{
+  "name": "@local/dsh-remotion",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Remotion video rendering inside DSH: an agent render tool plus a preview panel in the Web UI.",
+  "license": "MIT",
+  "exports": {
+    ".": "./index.js",
+    "./lib/render.js": "./lib/render.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "lib",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "remotion",
+    "media",
+    "scripts",
+    "README.md"
+  ],
+  "dependencies": {
+    "@remotion/bundler": "4.0.542",
+    "@remotion/renderer": "4.0.542",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "remotion": "4.0.542"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-runtime",
+        "@deepseek-ai/dsh-client-ui-slots"
+      ]
+    }
+  }
+}

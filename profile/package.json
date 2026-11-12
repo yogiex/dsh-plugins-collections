@@ -1,0 +1,21 @@
+{
+  "name": "dsh-profile-web",
+  "private": true,
+  "dependencies": {
+    "@local/dsh-bg-gradient": "link:../../../dsh-playground/dsh-plugins-collections/packages/dsh-bg-gradient",
+    "@local/opencode-go-usage": "link:../../../dsh-playground/dsh-plugins-collections/packages/opencode-go-usage",
+    "@local/usrsoda-gif": "link:../../../dsh-playground/dsh-plugins-collections/packages/usrsoda-gif",
+    "dsh-peak-hours": "^1.13.20"
+  },
+  "dsh": {
+    "profile": {
+      "bundles": [
+        "@deepseek-ai/dsh-base",
+        "@deepseek-ai/dsh-web-app",
+        "dsh-peak-hours",
+        "@local/usrsoda-gif",
+        "@local/opencode-go-usage"
+      ]
+    }
+  }
+}

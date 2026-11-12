@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Agent orchestration",
+    "description": "Orchestration tab showing the subagents a session has delegated, with status, duration, and token use."
+  }
+}

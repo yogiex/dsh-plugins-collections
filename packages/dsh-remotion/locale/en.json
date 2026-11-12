@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Remotion video studio",
+    "description": "Preview and render Remotion compositions from the Web UI, with a remotion_render tool that gives the agent video output."
+  }
+}

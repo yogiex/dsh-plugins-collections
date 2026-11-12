@@ -1,0 +1,7 @@
+- insert:
+    - id: dsh-bg-gradient
+      name: '@local/dsh-bg-gradient'
+      config:
+        enabled: true
+        preset: aurora
+        intensity: 100

@@ -1,0 +1,11 @@
+# Lapisan patch profil `web` — hanya bagian yang relevan untuk plugin.
+# Entri `insert` di bawah memasang dsh-bg-gradient; plugin ini sengaja TIDAK
+# dimasukkan ke `dsh.profile.bundles` agar tidak ter-mount dua kali (loader
+# tidak melakukan dedupe id).
+- insert:
+    - id: dsh-bg-gradient
+      name: '@local/dsh-bg-gradient'
+      config:
+        enabled: true
+        preset: aurora
+        intensity: 100
