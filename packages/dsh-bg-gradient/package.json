@@ -1,9 +1,9 @@
 {
   "name": "@local/dsh-bg-gradient",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
-  "description": "Configurable blue gradient background for the DSH Web GUI, with a Settings row.",
+  "description": "Chat background for the DSH Web GUI: gradient, solid colour, procedural wallpaper, or your own image/GIF, with a Settings row.",
   "main": "index.js",
   "exports": {
     ".": "./index.js",

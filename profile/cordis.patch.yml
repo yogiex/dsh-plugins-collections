@@ -6,6 +6,8 @@
     - id: dsh-bg-gradient
       name: '@local/dsh-bg-gradient'
       config:
-        enabled: true
+        mode: gradient      # none | gradient | solid | wallpaper | upload
         preset: aurora
         intensity: 100
+        dim: 40             # readability scrim for solid/wallpaper/upload
+        animate: true
