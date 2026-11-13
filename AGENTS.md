@@ -82,8 +82,9 @@ Every plugin is an ESM package with a `dsh` block in `package.json`:
 ## Working on a plugin
 
 ```bash
-# gradient: contrast + token-layer assertions (writes test/applied.json, git-ignored)
+# chat background: contrast + layer assertions (writes test/applied.json, git-ignored)
 node --test packages/dsh-bg-gradient/test/logic.test.mjs
+node --test packages/dsh-bg-gradient/test/host.test.mjs
 
 # usrsoda: regenerate client.js after editing src/ or media/
 node packages/usrsoda-gif/scripts/build.mjs

@@ -115,7 +115,7 @@ Six plugins, five of them stored here as full source trees.
 
 | Plugin | Version | Kind | Requires | Status |
 | --- | --- | --- | --- | --- |
-| [`dsh-bg-gradient`](packages/dsh-bg-gradient) | 0.1.0 | UI theme | — | active |
+| [`dsh-bg-gradient`](packages/dsh-bg-gradient) | 0.2.0 | UI background | — | active |
 | [`usrsoda-gif`](packages/usrsoda-gif) | 1.4.0 | UI decoration | — | active |
 | [`opencode-go-usage`](packages/opencode-go-usage) | 0.1.0 | Usage tracking | — | active |
 | `dsh-peak-hours` | ^1.13.20 | Usage tracking | npm | active |
@@ -129,16 +129,21 @@ Six plugins, five of them stored here as full source trees.
 
 #### `dsh-bg-gradient`
 
-Paints a fixed blue gradient behind the Web GUI shell and swaps the near-black primary accent for
-DeepSeek blue, without touching surfaces that must stay opaque (code blocks, bubbles, dialogs, tooltips,
-semantic colours).
+Paints a configurable **chat background** behind the conversation while leaving the sidebar and the
+Plugins/Settings pages on their stock surfaces. It also swaps the near-black primary accent for DeepSeek
+blue without touching surfaces that must stay opaque (code blocks, bubbles, dialogs, tooltips, semantic
+colours).
 
-- **Settings → Appearance → Background**: five preset chips (None, Aurora, Sky, Ice, Deep) plus a 0–100 %
-  strength slider and Reset. Choices persist through the host endpoint.
-- **Contrast-gated**: `test/logic.test.mjs` asserts every preset in both colour schemes keeps secondary text
-  at or above 4.5:1 over the deepest stop. Current worst case is Aurora at 4.75:1.
+- **Settings → Appearance → Background**: five modes — None, Gradient (Aurora/Sky/Ice/Deep plus strength),
+  Solid colour, six procedural wallpapers, and an uploaded JPG/PNG/WebP/GIF (8 MiB). Solid, Wallpaper, and
+  Upload also get a readability scrim. Choices persist through the host endpoint.
+- **Scoped by slot contract**: `body:has([data-slot^="conversation"])` receives the painted layers and the
+  translucent `bg-base`; `--dsw-specific-sidebar-fill` is never touched.
+- **Contrast-gated**: `test/logic.test.mjs` asserts secondary text stays at or above 4.5:1 for every
+  gradient, wallpaper, solid extreme, and worst-case image, across the readability range.
 - **Activated by patch only.** It is an `insert` entry, not a profile bundle — see
-  [Configuration model](#configuration-model).
+  [Configuration model](#configuration-model). Host changes need a `dsh web` restart; client changes are
+  bundle-polled.
 
 #### `usrsoda-gif`
 
@@ -343,7 +348,8 @@ Nothing here sends data to a third party. What is written locally:
 | File | Written by | Content |
 | --- | --- | --- |
 | `~/.dsh/opencode-go-usage.json` | `opencode-go-usage` | Per-request token/cost events |
-| `~/.dsh/dsh-bg-gradient.json` | `dsh-bg-gradient` | Selected preset and strength |
+| `~/.dsh/dsh-bg-gradient.json` | `dsh-bg-gradient` | Background mode, palette, readability, animation |
+| `~/.dsh/dsh-bg-gradient-assets/` | `dsh-bg-gradient` | The uploaded background image |
 | `<cwd>/remotion/` | `dsh-remotion` | Rendered media inside the session workspace |
 
 What is read: `~/.dsh/sessions` and `~/.local/share/opencode/opencode.db`, both by the usage plugin only.
@@ -366,8 +372,8 @@ None of the files above are tracked by git; they are covered by `.gitignore`.
 ## Development
 
 ```bash
-# contrast + token-layer test for the gradient (writes test/applied.json)
-cd packages/dsh-bg-gradient && node --test test/logic.test.mjs
+# contrast + layer test for the chat background (writes test/applied.json)
+cd packages/dsh-bg-gradient && node --test test/logic.test.mjs && node --test test/host.test.mjs
 
 # rebuild the usrsoda client from src/ + media/
 cd packages/usrsoda-gif && node scripts/build.mjs
